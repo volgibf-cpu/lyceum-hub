@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ученики — Проф. лицей</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">🎓</span>
+        <span class="brand-title">Проф. лицей</span>
+      </div>
+      <nav class="nav" id="main-nav">
+        <a class="nav-link" href="/app/index.html"><span>🏠</span> Главная</a>
+        <a class="nav-link" href="/app/schedule.html"><span>📅</span> Расписание</a>
+        <a class="nav-link" href="/app/grades.html"><span>📊</span> Оценки</a>
+        <a class="nav-link active" href="/app/students.html" id="nav-students" style="display:none">
+          <span>👥</span> Ученики
+        </a>
+        <a class="nav-link" href="/app/set-grade.html" id="nav-set-grade" style="display:none">
+          <span>✏️</span> Выставить оценку
+        </a>
+        <a class="nav-link" href="/app/profile.html"><span>👤</span> Профиль</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1>Ученики</h1>
+          <div class="topbar-sub" id="topbar-sub">Выберите группу</div>
+        </div>
+      </header>
+
+      <section class="card">
+        <div class="students-filter">
+          <label class="field" style="flex:1; margin:0;">
+            <span>Группа</span>
+            <input type="text" id="group-input" placeholder="например, ПК9-26" />
+          </label>
+          <button class="btn btn-primary" id="load-btn">🔍 Загрузить</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div id="students-list">
+          <p class="muted" style="text-align:center; padding:24px;">
+            Введите название группы и нажмите «Загрузить»
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { getMe, URLS } from '/static/js/api.js';
+
+    const API_BASE = localStorage.getItem('api_base') || 'http://127.0.0.1:8000';
+
+    /* ============ 1. Проверка роли ============ */
+    async function checkRole() {
+      try {
+        const me = await getMe();
+        if (me.role !== 'teacher' && me.role !== 'admin') {
+          location.href = URLS.schedule;
+          return false;
+        }
+        const navStudents = document.getElementById('nav-students');
+        if (navStudents) navStudents.style.display = '';
+        const navSetGrade = document.getElementById('nav-set-grade');
+        if (navSetGrade) navSetGrade.style.display = '';
+        if (me.group) {
+          document.getElementById('group-input').value = me.group;
+        }
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    /* ============ 2. Хелперы для ФИО ============ */
+    /* Читаем ТОЛЬКО те поля, что реально отдаёт backend:
+       first_name / last_name / middle_name
+       + fallback на name / second_name / patronymic на всякий случай */
+    function fullName(s) {
+      const last   = s.last_name   || s.second_name || '';
+      const first  = s.first_name  || s.name        || '';
+      const middle = s.middle_name || s.patronymic  || '';
+      return [last, first, middle].filter(Boolean).join(' ').trim();
+    }
+
+    function initials(u) {
+      const last  = (u.last_name  || u.second_name || '').trim();
+      const first = (u.first_name || u.name        || '').trim();
+      const a = last[0]  || '';
+      const b = first[0] || '';
+      return (a + b).toUpperCase() || '?';
+    }
+
+    /* ============ 3. Рендер списка ============ */
+    function renderStudents(students, groupName) {
+      const listEl = document.getElementById('students-list');
+      const subEl = document.getElementById('topbar-sub');
+
+      subEl.textContent = `Группа ${groupName} · ${students.length} учеников`;
+
+      if (!students.length) {
+        listEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">👥</div>
+            <h3>В группе нет учеников</h3>
+          </div>`;
+        return;
+      }
+
+      listEl.innerHTML = `
+        <div class="students-grid">
+          ${students.map((s) => `
+            <div class="student-card">
+              <div class="student-avatar">${initials(s)}</div>
+              <div class="student-info">
+                <div class="student-name">${fullName(s) || 'Без имени'}</div>
+                <div class="student-meta muted">ID: ${s.id}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+    }
+
+    /* ============ 4. Загрузка с API ============ */
+    async function loadStudents() {
+      const groupInput = document.getElementById('group-input');
+      const groupName = groupInput.value.trim();
+      const listEl = document.getElementById('students-list');
+
+      if (!groupName) {
+        listEl.innerHTML = `<p class="error" style="text-align:center; padding:24px;">Введите название группы</p>`;
+        return;
+      }
+
+      listEl.innerHTML = `<p class="muted" style="text-align:center; padding:24px;">Загрузка…</p>`;
+
+      try {
+        const response = await fetch(
+          `${API_BASE}/users/student?group_name=${encodeURIComponent(groupName)}`,
+          { credentials: 'include' }
+        );
+
+        if (response.status === 401) { location.href = URLS.login; return; }
+        if (response.status === 403) {
+          listEl.innerHTML = `<p class="error" style="text-align:center; padding:24px;">Нет доступа к этой группе</p>`;
+          return;
+        }
+        if (response.status === 404) {
+          listEl.innerHTML = `<p class="error" style="text-align:center; padding:24px;">Группа не найдена</p>`;
+          return;
+        }
+        if (!response.ok) throw new Error(`Ошибка ${response.status}`);
+
+        const students = await response.json();
+        renderStudents(students, groupName);
+      } catch (err) {
+        listEl.innerHTML = `<p class="error" style="text-align:center; padding:24px;">Ошибка: ${err.message}</p>`;
+      }
+    }
+
+    /* ============ 5. Инициализация ============ */
+    async function init() {
+      const isTeacher = await checkRole();
+      if (!isTeacher) return;
+
+      document.getElementById('load-btn').addEventListener('click', loadStudents);
+      document.getElementById('group-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') loadStudents();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

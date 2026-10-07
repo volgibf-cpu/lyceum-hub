@@ -1,0 +1,1441 @@
+/* ============================================================
+   Проф. лицей — общий стиль
+   Индиго-палитра, карточки, скругления, тени
+   ============================================================ */
+
+/* ============ ПЕРЕМЕННЫЕ ============ */
+:root {
+  --accent: #4a5dd9;
+  --accent-soft: #e9ecfb;
+  --accent-dark: #3646b8;
+  --bg: #eef1f8;
+  --surface: #ffffff;
+  --text: #1a1f36;
+  --muted: #8a90a8;
+  --border: #e4e8f3;
+  --danger: #e05a6a;
+  --ok: #4cb87e;
+  --warning: #e0a94a;
+
+  --radius: 16px;
+  --radius-sm: 12px;
+
+  --shadow: 0 4px 18px rgba(80, 100, 180, 0.07);
+  --shadow-hover: 0 12px 32px rgba(80, 100, 180, 0.14);
+
+  /* Палитра предметов */
+  --subj-math-bg: #e9eaff; --subj-math-fg: #5f66d9;
+  --subj-rus-bg:  #ffe6ec; --subj-rus-fg:  #d96283;
+  --subj-chem-bg: #e5f7ec; --subj-chem-fg: #4fa878;
+  --subj-hist-bg: #ffefe0; --subj-hist-fg: #d98a4a;
+  --subj-inf-bg:  #e0efff; --subj-inf-fg:  #4a8cd9;
+  --subj-phys-bg: #f0e6ff; --subj-phys-fg: #7a52c9;
+  --subj-lang-bg: #e6f5ff; --subj-lang-fg: #2f88b8;
+  --subj-default-bg: #eef1f8; --subj-default-fg: #6b7290;
+}
+
+/* ============ БАЗА ============ */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+h1, h2, h3 {
+  margin: 0 0 12px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+h1 { font-size: 24px; }
+h2 { font-size: 19px; }
+h3 { font-size: 17px; }
+
+.muted { color: var(--muted); }
+.error { color: var(--danger); }
+.ok    { color: var(--ok); }
+.hidden { display: none !important; }
+
+/* ============ LAYOUT (сайдбар + main) ============ */
+.app {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 0 8px;
+}
+.brand-icon { font-size: 22px; }
+
+.nav { display: flex; flex-direction: column; gap: 4px; }
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-link:hover {
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  text-decoration: none;
+}
+.nav-link.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.main {
+  padding: 24px 32px 48px;
+  max-width: 1200px;
+  width: 100%;
+}
+
+/* ============ TOPBAR ============ */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.topbar h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.topbar-sub {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* ============ CARD ============ */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+}
+
+/* ============ CONTROL BAR (неделя) ============ */
+.control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #f8fafd;
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.control-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.control-bar-range {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  font-size: 14px;
+}
+.control-bar-range .arrow {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 20px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.control-bar-range .arrow:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* ============ WEEK GRID (расписание) ============ */
+.week-grid { overflow-x: auto; padding-bottom: 4px; }
+.week-grid-inner {
+  display: grid;
+  grid-template-columns: 90px repeat(6, minmax(110px, 1fr));
+  gap: 10px;
+  min-width: 780px;
+}
+.week-day {
+  text-align: center;
+  padding: 10px 4px 12px;
+  border-radius: 12px;
+  background: #f8fafd;
+}
+.week-day .day-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+}
+.week-day .day-date {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.week-day[data-day="6"] { background: var(--accent-soft); }
+.week-day[data-day="6"] .day-name { color: var(--accent); }
+.week-day[data-day="6"] .day-date { color: var(--accent); opacity: 0.75; }
+
+.week-corner { padding: 10px 4px 12px; }
+
+.time-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 14px 10px;
+  background: #f8fafd;
+  border-radius: 12px;
+  font-size: 12px;
+}
+.time-cell .time-start {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--accent);
+}
+.time-cell .time-end {
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+.lesson-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 8px;
+  min-height: 108px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
+}
+.lesson-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+  border-color: transparent;
+}
+.lesson-tile:active { transform: translateY(0); }
+
+.lesson-tile.empty {
+  background: transparent;
+  border: 1px dashed #dfe4f0;
+  cursor: default;
+}
+.lesson-tile.empty:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: #dfe4f0;
+}
+.lesson-tile.empty::before {
+  content: "+";
+  color: #c7cddd;
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.lesson-tile .lesson-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.lesson-tile .lesson-name {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+.lesson-tile .lesson-teacher {
+  font-size: 10px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.lesson-tile[data-subj="math"] .lesson-icon { background: var(--subj-math-bg); color: var(--subj-math-fg); }
+.lesson-tile[data-subj="rus"]  .lesson-icon { background: var(--subj-rus-bg);  color: var(--subj-rus-fg); }
+.lesson-tile[data-subj="chem"] .lesson-icon { background: var(--subj-chem-bg); color: var(--subj-chem-fg); }
+.lesson-tile[data-subj="hist"] .lesson-icon { background: var(--subj-hist-bg); color: var(--subj-hist-fg); }
+.lesson-tile[data-subj="inf"]  .lesson-icon { background: var(--subj-inf-bg);  color: var(--subj-inf-fg); }
+.lesson-tile[data-subj="phys"] .lesson-icon { background: var(--subj-phys-bg); color: var(--subj-phys-fg); }
+.lesson-tile[data-subj="lang"] .lesson-icon { background: var(--subj-lang-bg); color: var(--subj-lang-fg); }
+.lesson-tile[data-subj="default"] .lesson-icon { background: var(--subj-default-bg); color: var(--subj-default-fg); }
+
+/* ============ BUTTONS ============ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+  min-height: 44px;
+}
+.btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  text-decoration: none;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #5a6ee6 0%, #4a5dd9 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(74, 93, 217, 0.28);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #4a5dd9 0%, #3646b8 100%);
+  box-shadow: 0 6px 18px rgba(74, 93, 217, 0.4);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-soft {
+  background: var(--accent-soft);
+  border-color: transparent;
+  color: var(--accent-dark);
+  font-weight: 700;
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 10px;
+  min-height: 38px;
+}
+.btn-soft:hover {
+  background: #dfe4f7;
+  color: var(--accent-dark);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border);
+}
+
+.btn-sm {
+  padding: 8px 14px;
+  font-size: 13px;
+  min-height: 38px;
+}
+.btn-block { width: 100%; }
+.btn-lg {
+  min-height: 52px;
+  font-size: 15px;
+  padding: 15px 24px;
+  border-radius: 14px;
+  font-weight: 700;
+}
+
+/* ============ FORM ============ */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+.field > span {
+  color: var(--muted);
+  font-weight: 500;
+  padding-left: 4px;
+  font-size: 13px;
+}
+.field input,
+.field textarea,
+.field select {
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(74, 93, 217, 0.12);
+}
+.field input::placeholder { color: #b8bdd0; }
+.field textarea { min-height: 100px; resize: vertical; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.form-error {
+  padding: 0;
+  background: #fdecec;
+  color: #c9415b;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.25s ease;
+  margin: 0;
+}
+.form-error.show {
+  padding: 12px 16px;
+  max-height: 200px;
+  opacity: 1;
+  margin: 4px 0;
+}
+.form-status {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ============ INPUT с иконкой (для логина) ============ */
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-wrap input {
+  width: 100%;
+  padding: 14px 16px 14px 48px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input-wrap input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(74, 93, 217, 0.12);
+}
+.input-wrap input::placeholder { color: #b8bdd0; }
+
+.input-icon {
+  position: absolute;
+  left: 18px;
+  font-size: 16px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+.input-suffix {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.15s;
+  line-height: 1;
+}
+.input-suffix:hover { background: var(--accent-soft); }
+
+/* ============ LOGIN PAGE ============ */
+.login-card {
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 40px 36px 32px;
+  text-align: center;
+}
+
+.login-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.login-logo {
+  width: 76px;
+  height: 76px;
+  border-radius: 22px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: 36px;
+  box-shadow: 0 8px 24px rgba(74, 93, 217, 0.15);
+}
+.login-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+  color: var(--text);
+}
+.login-subtitle {
+  color: var(--muted);
+  font-size: 15px;
+  margin: 0 0 32px;
+}
+.login-card .form { text-align: left; }
+
+.login-hint {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+}
+.login-hint a {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* ============ MODAL ============ */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal.hidden { display: none; }
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 40, 80, 0.5);
+  backdrop-filter: blur(4px);
+}
+.modal-card {
+  position: relative;
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px 32px;
+  box-shadow: 0 20px 60px rgba(30, 40, 80, 0.25);
+  width: 100%;
+  max-width: 460px;
+  margin: 20px;
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.modal-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+.modal-head-text h2 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+.modal-head-text .modal-sub {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 2px;
+}
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--border);
+  font-size: 14px;
+}
+.info-row:last-child { border-bottom: none; padding-bottom: 0; }
+.info-row .label { color: var(--muted); flex-shrink: 0; }
+.info-row .value { text-align: right; font-weight: 500; }
+
+/* ============ EMPTY STATE ============ */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+}
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 12px;
+  opacity: 0.55;
+}
+.empty-state h2, .empty-state h3 { margin-bottom: 6px; }
+.empty-state p { margin-bottom: 20px; }
+
+/* ============ АДАПТИВ ============ */
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    padding: 12px;
+    gap: 12px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .nav { flex-direction: row; gap: 6px; }
+  .nav-link { padding: 8px 12px; }
+  .main { padding: 16px; }
+  .topbar h1 { font-size: 20px; }
+  .form-row { grid-template-columns: 1fr; }
+
+  .login-card {
+    margin: 24px 12px;
+    padding: 32px 24px 24px;
+  }
+  .login-title { font-size: 20px; }
+  .login-logo { width: 64px; height: 64px; font-size: 30px; }
+}
+
+/* ============ PROFILE ============ */
+.profile-hero {
+  background: linear-gradient(135deg, #5a6ee6 0%, #4a5dd9 60%, #3f52c9 100%);
+  border-radius: var(--radius);
+  padding: 32px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 40px rgba(74, 93, 217, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+.profile-hero::before {
+  content: "";
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 260px; height: 260px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+.profile-hero::after {
+  content: "";
+  position: absolute;
+  bottom: -100px; right: 120px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.profile-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.profile-hero-info {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+.profile-hero-name {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  line-height: 1.15;
+}
+.profile-hero-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  opacity: 0.92;
+}
+.profile-hero-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ============ Сетка полей ============ */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 28px;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.profile-field:last-child,
+.profile-field:nth-last-child(2) {
+  /* Последние два не имеют нижней границы, если 6 полей */
+}
+
+.profile-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.profile-value {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Адаптив */
+@media (max-width: 700px) {
+  .profile-hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+  }
+  .profile-hero-name { font-size: 22px; }
+  .profile-hero-meta { justify-content: center; }
+  .profile-grid { grid-template-columns: 1fr; }
+}
+
+/* ============ STUDENTS (список учеников) ============ */
+
+.group-input {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: inherit;
+  min-width: 200px;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.group-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(74, 93, 217, 0.12);
+}
+
+.students-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.student-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: #f8fafd;
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--accent);
+  transition: background 0.15s, transform 0.12s;
+}
+.student-card:hover {
+  background: #f4f7fd;
+  transform: translateX(2px);
+}
+
+.student-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 16px;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+
+.student-info { min-width: 0; flex: 1; }
+.student-name {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.student-meta {
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .students-grid { grid-template-columns: 1fr; }
+  .group-input { min-width: 0; width: 100%; }
+  .control-bar-range {
+    flex-wrap: wrap;
+  }
+}
+
+/* ============ SET-GRADE FORM ============ */
+
+/* Радио-карточки для выбора типа (Оценка / Пропуск) */
+.radio-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.radio-card {
+  position: relative;
+  cursor: pointer;
+}
+.radio-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.radio-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  transition: all 0.15s;
+  font-weight: 600;
+}
+.radio-card input:checked + .radio-content {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+}
+.radio-card:hover .radio-content {
+  border-color: var(--accent);
+}
+.radio-icon { font-size: 22px; }
+.radio-title { font-size: 15px; }
+
+/* Сетка кнопок-оценок */
+.grade-selector {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.grade-option {
+  position: relative;
+  cursor: pointer;
+}
+.grade-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.grade-option > span {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1 / 1;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: #fff;
+  font-weight: 800;
+  font-size: 22px;
+  transition: all 0.15s;
+  line-height: 1.1;
+  text-align: center;
+}
+.grade-option > span small {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1;
+}
+.grade-option:hover > span { border-color: var(--accent); }
+
+/* Активная оценка — с цветом */
+.grade-option input:checked + span {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(74, 93, 217, 0.18);
+}
+
+.grade-option.grade-5 input:checked + span { background: #d8f3e3; color: #2f8a55; border-color: #2f8a55; }
+.grade-option.grade-4 input:checked + span { background: #dde9ff; color: #3d63c9; border-color: #3d63c9; }
+.grade-option.grade-3 input:checked + span { background: #fff1d6; color: #b17d1a; border-color: #b17d1a; }
+.grade-option.grade-2 input:checked + span { background: #fdecec; color: #c9415b; border-color: #c9415b; }
+.grade-option.grade-other input:checked + span {
+  background: #eef1f8; color: var(--muted); border-color: #8a90a8;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 14px 22px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: #1a1f36;
+  box-shadow: 0 12px 32px rgba(0,0,0,.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: all .3s ease;
+  z-index: 1000;
+  max-width: 90vw;
+  text-align: center;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast.ok::before { content: '✓ '; color: #4cb87e; font-weight: 800; }
+.toast.error { background: #c9415b; }
+.toast.error::before { content: '⚠ '; color: #fff; }
+
+/* Адаптив */
+@media (max-width: 600px) {
+  .radio-group { grid-template-columns: 1fr; }
+  .grade-selector { grid-template-columns: repeat(4, 1fr); }
+  .grade-option > span { font-size: 18px; }
+}
+
+/* ============ STUDENTS FILTER (для set-grade.html) ============ */
+.students-filter {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.students-filter .field {
+  flex: 1;
+  margin: 0;
+  min-width: 200px;
+}
+.students-filter .btn {
+  flex-shrink: 0;
+}
+
+/* ============ GRADES PAGE ============ */
+
+/* Сводка (средний балл + счётчики) */
+.grades-summary-desktop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 28px;
+}
+
+.grades-summary-main {
+  text-align: center;
+  min-width: 140px;
+}
+
+.grades-avg {
+  font-size: 46px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.grades-avg-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.grades-counts {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.grade-count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.grade-count-chip {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.grade-count-num {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Цвета оценок */
+.grade-5 { background: #d8f3e3; color: #2f8a55; }
+.grade-4 { background: #dde9ff; color: #3d63c9; }
+.grade-3 { background: #fff1d6; color: #b17d1a; }
+.grade-2 { background: #fdecec; color: #c9415b; }
+.grade-other { background: #eef1f8; color: var(--muted); }
+
+/* Чип оценки в таблице */
+.grade-chip {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* Чип «Н» — отсутствие */
+.grade-chip.grade-absence {
+  background: #eef1f8;
+  color: #8a90a8;
+  font-weight: 800;
+  font-style: italic;
+}
+
+/* ============ TABLE (используется в grades.html) ============ */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table th,
+.table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.table th {
+  background: #f8fafd;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.table tr:hover td {
+  background: #fafcff;
+}
+
+/* ============ TOPBAR FILTERS (для селекта «Предмет») ============ */
+.topbar-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.inline-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.inline-field select,
+.inline-field input {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+  min-width: 180px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.inline-field select:focus,
+.inline-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(74, 93, 217, 0.12);
+}
+
+/* ============ АДАПТИВ — дополнение ============ */
+@media (max-width: 700px) {
+  .students-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .students-filter .btn {
+    width: 100%;
+  }
+  .grades-summary-desktop {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .grades-avg { font-size: 36px; }
+  .topbar-filters {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .inline-field select,
+  .inline-field input {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* ============ HERO GREETING ============ */
+.hero-greeting {
+  background: linear-gradient(135deg, #5a6ee6 0%, #4a5dd9 60%, #3f52c9 100%);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 40px rgba(74, 93, 217, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+.hero-greeting::before {
+  content: "";
+  position: absolute;
+  top: -80px; right: -60px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+.hero-greeting-text { position: relative; z-index: 1; min-width: 0; }
+.hero-greeting h1 {
+  margin: 0 0 6px;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.hero-greeting-sub {
+  opacity: 0.9;
+  font-size: 14px;
+  text-transform: capitalize;
+}
+.hero-greeting-decor {
+  font-size: 64px;
+  opacity: 0.5;
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* ============ CARD HEAD (с кнопкой) ============ */
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.card-head h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-head .head-icon {
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: grid; place-items: center;
+  font-size: 16px;
+}
+
+/* ============ TODAY LESSONS ============ */
+.today-lessons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.today-lesson {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  background: #f8fafd;
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--accent);
+  transition: background 0.15s, transform 0.12s;
+}
+.today-lesson:hover {
+  background: #f4f7fd;
+  transform: translateX(2px);
+}
+.today-lesson-time {
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 14px;
+  min-width: 68px;
+  line-height: 1.2;
+}
+.today-lesson-time small {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.today-lesson-body { flex: 1; min-width: 0; }
+.today-lesson-name {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+.today-lesson-meta {
+  color: var(--muted);
+  font-size: 13px;
+}
+.today-lesson-num {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 4px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+/* ============ QUICK ACTIONS (для учителя) ============ */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+.quick-action {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  border-radius: var(--radius-sm);
+  background: #f8fafd;
+  border: 1.5px solid transparent;
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.15s;
+}
+.quick-action:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  text-decoration: none;
+  color: var(--accent-dark);
+}
+.quick-action-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: #fff;
+  display: grid; place-items: center;
+  font-size: 22px;
+  margin-bottom: 6px;
+  box-shadow: 0 4px 12px rgba(74, 93, 217, 0.12);
+}
+.quick-action-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+}
+.quick-action-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ============ GRADES PREVIEW (для ученика) ============ */
+.grades-preview-inner {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 32px;
+  align-items: center;
+}
+.grades-preview-avg { text-align: center; }
+.grades-preview-label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.grades-preview-chips { min-width: 0; }
+
+/* Адаптив */
+@media (max-width: 700px) {
+  .hero-greeting { padding: 20px 22px; }
+  .hero-greeting h1 { font-size: 20px; }
+  .hero-greeting-decor { font-size: 40px; }
+  .grades-preview-inner { grid-template-columns: 1fr; gap: 20px; }
+  .quick-actions { grid-template-columns: 1fr; }
+  .today-lesson-num { display: none; }
+}
+
+/* ============ GRADES PAGE — placeholder при старте ============ */
+#placeholder-card .empty-state {
+  padding: 60px 24px;
+}
+
+/* Чуть крупнее сводка на этой странице */
+.grades-summary-desktop .grades-avg {
+  font-size: 46px;
+}
+
+/* Учительская таблица — колонка «Ученик» жирным */
+#grades-body td b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Адаптив */
+@media (max-width: 800px) {
+  .topbar-filters {
+    width: 100%;
+  }
+  .inline-field select {
+    width: 100%;
+  }
+}
+
+.student-card-clickable {
+  cursor: pointer;
+}
+.student-card-clickable:hover {
+  background: var(--accent-soft);
+  transform: translateX(4px);
+  border-left-color: var(--accent-dark);
+}
+
+.back-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  margin-bottom: 16px;
+  background: #f8fafd;
+  border-radius: var(--radius-sm);
+  flex-wrap: wrap;
+}
+.back-bar-info {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 15px;
+}
+
+@media (max-width: 700px) {
+  .students-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .students-filter .btn { width: 100%; }
+}

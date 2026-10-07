@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Главная — Проф. лицей</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">🎓</span>
+        <span class="brand-title">Проф. лицей</span>
+      </div>
+      <nav class="nav">
+        <a class="nav-link active" href="/app/index.html"><span>🏠</span> Главная</a>
+        <a class="nav-link" href="/app/schedule.html"><span>📅</span> Расписание</a>
+        <a class="nav-link" href="/app/grades.html"><span>📊</span> Оценки</a>
+        <a class="nav-link" href="/app/students.html" id="nav-students" style="display:none">
+          <span>👥</span> Ученики
+        </a>
+        <a class="nav-link" href="/app/set-grade.html" id="nav-set-grade" style="display:none">
+          <span>✏️</span> Выставить оценку
+        </a>
+        <a class="nav-link" href="/app/profile.html"><span>👤</span> Профиль</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <!-- Приветствие -->
+      <div class="hero-greeting" id="hero-greeting">
+        <div class="hero-greeting-text">
+          <h1 id="greeting-title">Загрузка…</h1>
+          <div class="hero-greeting-sub" id="greeting-sub">—</div>
+        </div>
+        <div class="hero-greeting-decor" id="greeting-decor">👋</div>
+      </div>
+
+      <!-- Блок для УЧЕНИКА -->
+      <div id="student-blocks" style="display:none;">
+
+        <!-- Ближайшая пара + расписание на сегодня -->
+        <section class="card">
+          <div class="card-head">
+            <h2>
+              <span class="head-icon">📅</span>
+              Сегодня
+            </h2>
+            <a href="/app/schedule.html" class="btn btn-soft btn-sm">Всё расписание →</a>
+          </div>
+          <div id="today-lessons">
+            <p class="muted">Загрузка…</p>
+          </div>
+        </section>
+
+        <!-- Средний балл + последние оценки -->
+        <section class="card">
+          <div class="card-head">
+            <h2>
+              <span class="head-icon">📊</span>
+              Успеваемость
+            </h2>
+            <a href="/app/grades.html" class="btn btn-soft btn-sm">Все оценки →</a>
+          </div>
+          <div class="grades-preview" id="grades-preview">
+            <p class="muted">Загрузка…</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- Блок для УЧИТЕЛЯ -->
+      <div id="teacher-blocks" style="display:none;">
+
+        <!-- Быстрые действия -->
+        <section class="card">
+          <div class="card-head">
+            <h2>
+              <span class="head-icon">⚡</span>
+              Быстрые действия
+            </h2>
+          </div>
+          <div class="quick-actions">
+            <a class="quick-action" href="/app/set-grade.html">
+              <div class="quick-action-icon">✏️</div>
+              <div class="quick-action-title">Выставить оценку</div>
+              <div class="quick-action-sub">Ученику своей группы</div>
+            </a>
+            <a class="quick-action" href="/app/students.html">
+              <div class="quick-action-icon">👥</div>
+              <div class="quick-action-title">Мои ученики</div>
+              <div class="quick-action-sub">Список по группам</div>
+            </a>
+            <a class="quick-action" href="/app/schedule.html">
+              <div class="quick-action-icon">📅</div>
+              <div class="quick-action-title">Расписание</div>
+              <div class="quick-action-sub">Пары на неделю</div>
+            </a>
+          </div>
+        </section>
+
+        <!-- Расписание учителя на сегодня -->
+        <section class="card">
+          <div class="card-head">
+            <h2>
+              <span class="head-icon">📅</span>
+              Мои пары сегодня
+            </h2>
+            <a href="/app/schedule.html" class="btn btn-soft btn-sm">Всё расписание →</a>
+          </div>
+          <div id="today-lessons-teacher">
+            <p class="muted">Загрузка…</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- Блок для АДМИНА (опционально — используем teacher-блок) -->
+    </main>
+  </div>
+
+  <script type="module">
+    import { getMe, getSchedule, getMyGrades } from '/static/js/api.js';
+
+    /* ============ Роли ============ */
+    const ROLE_LABELS = {
+      student: 'Ученик',
+      teacher: 'Преподаватель',
+      admin:   'Администратор',
+    };
+
+    const DAYS_SHORT = {
+      'Пн': 'Пн', 'Вт': 'Вт', 'Ср': 'Ср', 'Чт': 'Чт', 'Пт': 'Пт', 'Сб': 'Сб',
+      1: 'Пн', 2: 'Вт', 3: 'Ср', 4: 'Чт', 5: 'Пт', 6: 'Сб',
+    };
+
+    /* Сегодня — день недели в формате "Пн" */
+    function todayShort() {
+      const dow = new Date().getDay();   // 0-вс, 1-пн, ..., 6-сб
+      const map = { 1: 'Пн', 2: 'Вт', 3: 'Ср', 4: 'Чт', 5: 'Пт', 6: 'Сб', 0: null };
+      return map[dow];
+    }
+
+    function todayDate() {
+      const months = ['января','февраля','марта','апреля','мая','июня',
+                      'июля','августа','сентября','октября','ноября','декабря'];
+      const d = new Date();
+      const days = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+      return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
+    }
+
+    /* ============ Приветствие ============ */
+    function renderGreeting(me) {
+      const hour = new Date().getHours();
+      let hi = 'Здравствуйте';
+      if (hour < 6)  hi = 'Доброй ночи';
+      else if (hour < 12) hi = 'Доброе утро';
+      else if (hour < 18) hi = 'Добрый день';
+      else hi = 'Добрый вечер';
+
+      const name = [me.name, me.second_name].filter(Boolean).join(' ')
+                || me.email;
+
+      document.getElementById('greeting-title').textContent = `${hi}, ${name} 👋`;
+      document.getElementById('greeting-sub').textContent =
+        `${todayDate()} · ${ROLE_LABELS[me.role] || me.role}` +
+        (me.group ? ` · Группа ${me.group}` : '');
+    }
+
+    /* ============ Ученик: расписание на сегодня ============ */
+    function renderTodayLessons(lessons, containerId, emptyText = 'Сегодня пар нет 🎉') {
+      const el = document.getElementById(containerId);
+      const today = todayShort();
+
+      if (!today) {
+        el.innerHTML = `<p class="muted">Сегодня выходной 🎉</p>`;
+        return;
+      }
+
+      const todays = lessons
+        .filter((l) => {
+          const d = l.day === today ||
+                    l.day === { 'Пн':1,'Вт':2,'Ср':3,'Чт':4,'Пт':5,'Сб':6 }[today];
+          return d;
+        })
+        .sort((a, b) => Number(a.number) - Number(b.number));
+
+      if (!todays.length) {
+        el.innerHTML = `<p class="muted">${emptyText}</p>`;
+        return;
+      }
+
+      el.innerHTML = `
+        <div class="today-lessons">
+          ${todays.map((l) => `
+            <div class="today-lesson">
+              <div class="today-lesson-time">${l.start || ''}<br><small>${l.end || ''}</small></div>
+              <div class="today-lesson-body">
+                <div class="today-lesson-name">${l.subject_name || ''}</div>
+                <div class="today-lesson-meta">
+                  👩‍🏫 ${(l.teacher || '').trim() || '#' + l.teacher_id}
+                </div>
+              </div>
+              <div class="today-lesson-num">${l.number} пара</div>
+            </div>
+          `).join('')}
+        </div>`;
+    }
+
+    /* ============ Ученик: успеваемость ============ */
+    function renderGradesPreview(grades) {
+      const el = document.getElementById('grades-preview');
+
+      if (!grades || !grades.length) {
+        el.innerHTML = `<p class="muted">Оценок пока нет</p>`;
+        return;
+      }
+
+      // Средний балл
+      const values = grades
+        .filter((g) => (g.kind || 'grade') === 'grade' && g.value != null)
+        .map((g) => Number(g.value))
+        .filter((v) => !isNaN(v));
+
+      const avg = values.length
+        ? Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 100) / 100
+        : null;
+
+      // Последние 5 оценок (только оценки, не пропуски)
+      const recent = grades
+        .filter((g) => (g.kind || 'grade') === 'grade' && g.value != null)
+        .slice(0, 5);
+
+      const gradeClass = (v) =>
+        ({ 5: 'grade-5', 4: 'grade-4', 3: 'grade-3', 2: 'grade-2' }[v] || 'grade-other');
+
+      el.innerHTML = `
+        <div class="grades-preview-inner">
+          <div class="grades-preview-avg">
+            <div class="grades-avg">${avg != null ? avg.toFixed(2).replace(/\.00$/, '') : '—'}</div>
+            <div class="grades-avg-label">средний балл</div>
+          </div>
+          <div class="grades-preview-chips">
+            <div class="grades-preview-label">Последние оценки</div>
+            <div class="grade-chips">
+              ${recent.map((g) =>
+                `<span class="grade-chip ${gradeClass(g.value)}" title="${g.subject_name} · ${g.date}">${g.value}</span>`
+              ).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ============ Инициализация ============ */
+    async function init() {
+      let me;
+      try {
+        me = await getMe();
+      } catch {
+        return;   // 401 → api.js сам редиректнёт
+      }
+
+      renderGreeting(me);
+
+      // Показать ссылки в сайдбаре по роли
+      if (me.role === 'teacher' || me.role === 'admin') {
+        const navStudents = document.getElementById('nav-students');
+        if (navStudents) navStudents.style.display = '';
+        const navSetGrade = document.getElementById('nav-set-grade');
+        if (navSetGrade) navSetGrade.style.display = '';
+      }
+
+      // Показать нужные блоки
+      if (me.role === 'student') {
+        document.getElementById('student-blocks').style.display = '';
+      } else {
+        document.getElementById('teacher-blocks').style.display = '';
+      }
+
+      // Загружаем расписание
+      try {
+        const lessons = await getSchedule();
+        if (me.role === 'student') {
+          renderTodayLessons(lessons, 'today-lessons');
+        } else {
+          // Для учителя — тот же эндпоинт /pair/ отдаёт его пары
+          renderTodayLessons(lessons, 'today-lessons-teacher', 'Сегодня пар нет 🎉');
+        }
+      } catch (e) {
+        const target = me.role === 'student' ? 'today-lessons' : 'today-lessons-teacher';
+        document.getElementById(target).innerHTML =
+          `<p class="error">Ошибка загрузки расписания</p>`;
+      }
+
+      // Для ученика — оценки
+      if (me.role === 'student') {
+        try {
+          const grades = await getMyGrades();
+          renderGradesPreview(grades);
+        } catch (e) {
+          document.getElementById('grades-preview').innerHTML =
+            `<p class="error">Ошибка загрузки оценок</p>`;
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

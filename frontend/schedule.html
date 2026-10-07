@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Расписание пар — Проф. лицей</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">🎓</span>
+        <span class="brand-title">Проф. лицей</span>
+      </div>
+      <nav class="nav">
+        <a class="nav-link" href="index.html"><span>🏠</span> Главная</a>
+        <a class="nav-link active" href="schedule.html"><span>📅</span> Расписание</a>
+        <a class="nav-link" href="grades.html"><span>📊</span> Оценки</a>
+        <a class="nav-link" href="/app/students.html" id="nav-students" style="display:none">
+          <span>👥</span> Ученики
+        </a>
+        <a class="nav-link" href="/app/set-grade.html" id="nav-set-grade" style="display:none">
+          <span>✏️</span> Выставить оценку
+        </a>
+        <a class="nav-link" href="profile.html"><span>👤</span> Профиль</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1>Расписание пар</h1>
+          <div class="topbar-sub" id="topbar-sub">—</div>
+        </div>
+        <button class="btn btn-soft" id="refresh-btn" title="Обновить">
+          ↻ Обновить
+        </button>
+      </header>
+
+      <section class="card">
+        <div class="control-bar">
+          <div class="control-bar-left">📅 Неделя</div>
+          <div class="control-bar-range">
+            <button class="arrow" id="prev-week">‹</button>
+            <span id="week-range">—</span>
+            <button class="arrow" id="next-week">›</button>
+          </div>
+        </div>
+
+        <div class="week-grid">
+          <div class="week-grid-inner" id="week-grid">
+            <p class="muted" style="grid-column:1/-1; text-align:center; padding:32px;">
+              Загрузка…
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Модалка пары -->
+  <div class="modal hidden" id="lesson-modal">
+    <div class="modal-backdrop" onclick="document.getElementById('lesson-modal').classList.add('hidden')"></div>
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-icon" id="m-icon">📘</div>
+        <div class="modal-head-text">
+          <h2 id="m-subject">—</h2>
+          <div class="modal-sub" id="m-when">—</div>
+        </div>
+      </div>
+      <div class="info-list">
+        <div class="info-row">
+          <span class="label">Время</span>
+          <span class="value" id="m-time">—</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Преподаватель</span>
+          <span class="value" id="m-teacher">—</span>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <button class="btn btn-soft"
+                onclick="document.getElementById('lesson-modal').classList.add('hidden')">
+          Закрыть
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { getMe } from '/static/js/api.js';
+    import './static/js/schedule.js';   // ← замени на grades.js / profile.js / для index — main.js
+
+    // Показать ссылку «Ученики» только учителю/админу
+    (async () => {
+      try {
+        const me = await getMe();
+        if (me.role === 'teacher' || me.role === 'admin') {
+          const nav = document.getElementById('nav-students');
+          if (nav) nav.style.display = '';
+        }
+      } catch {}
+    })();
+  </script>
+</body>
+</html>

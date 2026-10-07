@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Оценки — Проф. лицей</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">🎓</span>
+        <span class="brand-title">Проф. лицей</span>
+      </div>
+      <nav class="nav">
+        <a class="nav-link" href="/app/index.html"><span>🏠</span> Главная</a>
+        <a class="nav-link" href="/app/schedule.html"><span>📅</span> Расписание</a>
+        <a class="nav-link active" href="/app/grades.html"><span>📊</span> Оценки</a>
+        <a class="nav-link" href="/app/students.html" id="nav-students" style="display:none">
+          <span>👥</span> Ученики
+        </a>
+        <a class="nav-link" href="/app/set-grade.html" id="nav-set-grade" style="display:none">
+          <span>✏️</span> Выставить оценку
+        </a>
+        <a class="nav-link" href="/app/profile.html"><span>👤</span> Профиль</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="page-title">Оценки</h1>
+          <div class="topbar-sub" id="topbar-sub">—</div>
+        </div>
+        <div class="topbar-filters" id="topbar-filters" style="display:none;">
+          <label class="inline-field">
+            <span>Предмет:</span>
+            <select id="subject-select">
+              <option value="">Все предметы</option>
+            </select>
+          </label>
+        </div>
+      </header>
+
+      <!-- ========== РЕЖИМ УЧЕНИКА ========== -->
+      <div id="student-view" style="display:none;">
+        <section class="card grades-summary-desktop">
+          <div class="grades-summary-main">
+            <div class="grades-avg" id="overall-avg">—</div>
+            <div class="grades-avg-label">средний балл</div>
+          </div>
+          <div class="grades-counts" id="grades-counts"></div>
+        </section>
+
+        <section class="card">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Предмет</th>
+                <th>Оценка</th>
+                <th>Преподаватель</th>
+                <th>Комментарий</th>
+              </tr>
+            </thead>
+            <tbody id="grades-body-student">
+              <tr><td colspan="5" class="muted">Загрузка…</td></tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <!-- ========== РЕЖИМ УЧИТЕЛЯ ========== -->
+      <div id="teacher-view" style="display:none;">
+
+        <!-- ЭКРАН 1: выбор группы -->
+        <div id="students-screen">
+          <section class="card">
+            <div class="students-filter">
+              <label class="field" style="flex:1; margin:0;">
+                <span>Группа</span>
+                <input type="text" id="group-input" placeholder="например, ПК9-26" />
+              </label>
+              <button class="btn btn-primary" id="load-students-btn">
+                🔍 Загрузить учеников
+              </button>
+            </div>
+          </section>
+
+          <section class="card">
+            <div id="students-list">
+              <p class="muted" style="text-align:center; padding:24px;">
+                Введите группу и нажмите «Загрузить учеников»
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <!-- ЭКРАН 2: оценки ученика -->
+        <div id="grades-screen" style="display:none;">
+          <div class="card back-bar">
+            <button class="btn btn-soft" id="back-btn">← Назад к ученикам</button>
+            <div class="back-bar-info" id="back-bar-info">—</div>
+          </div>
+
+          <section class="card grades-summary-desktop">
+            <div class="grades-summary-main">
+              <div class="grades-avg" id="overall-avg-teacher">—</div>
+              <div class="grades-avg-label">средний балл</div>
+            </div>
+            <div class="grades-counts" id="grades-counts-teacher"></div>
+          </section>
+
+          <section class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Дата</th>
+                  <th>Предмет</th>
+                  <th>Оценка</th>
+                  <th>Преподаватель</th>
+                  <th>Комментарий</th>
+                </tr>
+              </thead>
+              <tbody id="grades-body-teacher">
+                <tr><td colspan="5" class="muted">Загрузка…</td></tr>
+              </tbody>
+            </table>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { getMe, getMyGrades, URLS } from '/static/js/api.js';
+
+    const API_BASE = localStorage.getItem('api_base') || 'http://127.0.0.1:8000';
+
+    /* ============ Утилиты ============ */
+    function formatDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (isNaN(d)) return iso;
+      return d.toLocaleDateString('ru-RU', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function average(values) {
+      if (!values.length) return null;
+      return Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 100) / 100;
+    }
+
+    function gradeClass(v) {
+      return { 5: 'grade-5', 4: 'grade-4', 3: 'grade-3', 2: 'grade-2' }[v] || 'grade-other';
+    }
+
+    function fullName(s) {
+      const last   = s.last_name   || s.second_name || '';
+      const first  = s.first_name  || s.name        || '';
+      const middle = s.middle_name || s.patronymic  || '';
+      return [last, first, middle].filter(Boolean).join(' ').trim();
+    }
+
+    function initials(u) {
+      const last  = (u.last_name  || u.second_name || '').trim();
+      const first = (u.first_name || u.name        || '').trim();
+      return ((last[0] || '') + (first[0] || '')).toUpperCase() || '?';
+    }
+
+    /* ============ Общий рендер сводки + таблицы ============ */
+    function renderGrades(grades, tbodyId, avgId, countsId, showStudent = false) {
+      const tbody = document.getElementById(tbodyId);
+      const avgEl = document.getElementById(avgId);
+      const countsEl = document.getElementById(countsId);
+
+      const values = grades
+        .filter((g) => (g.kind || 'grade') === 'grade' && g.value != null)
+        .map((g) => Number(g.value))
+        .filter((v) => !isNaN(v));
+
+      const avg = average(values);
+      avgEl.textContent = avg != null ? avg.toFixed(2).replace(/\.00$/, '') : '—';
+
+      const counts = { 5: 0, 4: 0, 3: 0, 2: 0 };
+      values.forEach((v) => { if (counts[v] !== undefined) counts[v]++; });
+      countsEl.innerHTML = Object.entries(counts).map(([k, v]) => `
+        <div class="grade-count">
+          <span class="grade-count-chip grade-${k}">${k}</span>
+          <span class="grade-count-num">${v}</span>
+        </div>
+      `).join('');
+
+      if (!grades.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="muted">Оценок нет.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = grades.map((g) => {
+        const isAbs = g.kind === 'absence';
+        const chip = isAbs
+          ? `<span class="grade-chip grade-absence" title="${g.comment || ''}">${g.status || 'Н'}</span>`
+          : `<span class="grade-chip ${gradeClass(g.value)}">${g.value}</span>`;
+        return `
+          <tr>
+            <td>${formatDate(g.date)}</td>
+            <td>${g.subject_name}</td>
+            <td>${chip}</td>
+            <td>${g.teacher || '—'}</td>
+            <td class="muted">${g.comment || '—'}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    /* ============ РЕЖИМ УЧЕНИКА ============ */
+    let studentGrades = [];
+
+    function renderStudent() {
+      const subject = document.getElementById('subject-select').value;
+      const filtered = subject
+        ? studentGrades.filter((g) => g.subject_name === subject)
+        : studentGrades;
+      renderGrades(filtered, 'grades-body-student', 'overall-avg', 'grades-counts');
+    }
+
+    async function initStudent() {
+      document.getElementById('page-title').textContent = 'Мои оценки';
+      document.getElementById('topbar-sub').textContent = 'Личная успеваемость';
+      document.getElementById('student-view').style.display = '';
+      document.getElementById('topbar-filters').style.display = '';
+
+      const tbody = document.getElementById('grades-body-student');
+      tbody.innerHTML = '<tr><td colspan="5" class="muted">Загрузка…</td></tr>';
+
+      try {
+        const data = await getMyGrades();
+        studentGrades = Array.isArray(data) ? data : [];
+
+        const subjects = [...new Set(studentGrades.map((g) => g.subject_name))].sort();
+        const select = document.getElementById('subject-select');
+        select.innerHTML = '<option value="">Все предметы</option>' +
+          subjects.map((s) => `<option value="${s}">${s}</option>`).join('');
+
+        select.addEventListener('change', renderStudent);
+        renderStudent();
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" class="error">Ошибка: ${e.message}</td></tr>`;
+      }
+    }
+
+    /* ============ РЕЖИМ УЧИТЕЛЯ ============ */
+    let currentStudents = [];
+    let currentGrades = [];
+
+    async function loadStudents() {
+      const groupName = document.getElementById('group-input').value.trim();
+      const listEl = document.getElementById('students-list');
+
+      if (!groupName) {
+        listEl.innerHTML = `<p class="error" style="text-align:center; padding:24px;">Введите группу</p>`;
+        return;
+      }
+
+      listEl.innerHTML = `<p class="muted" style="text-align:center; padding:24px;">Загрузка…</p>`;
+
+      try {
+        const response = await fetch(
+          `${API_BASE}/users/student?group_name=${encodeURIComponent(groupName)}`,
+          { credentials: 'include' }
+        );
+
+        if (response.status === 401) { location.href = URLS.login; return; }
+        if (response.status === 403) {
+          listEl.innerHTML = `<p class="error" style="text-align:center; padding:24px;">Нет доступа</p>`;
+          return;
+        }
+        if (response.status === 404) {
+          listEl.innerHTML = `<p class="error" style="text-align:center; padding:24px;">Группа не найдена</p>`;
+          return;
+        }
+        if (!response.ok) throw new Error(`Ошибка ${response.status}`);
+
+        currentStudents = await response.json();
+        document.getElementById('topbar-sub').textContent =
+          `Группа ${groupName} · ${currentStudents.length} учеников`;
+
+        if (!currentStudents.length) {
+          listEl.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">👥</div>
+              <h3>В группе нет учеников</h3>
+            </div>`;
+          return;
+        }
+
+        listEl.innerHTML = `
+          <div class="students-grid">
+            ${currentStudents.map((s) => `
+              <div class="student-card student-card-clickable" data-student-id="${s.id}">
+                <div class="student-avatar">${initials(s)}</div>
+                <div class="student-info">
+                  <div class="student-name">${fullName(s) || 'Без имени'}</div>
+                  <div class="student-meta muted">Посмотреть оценки →</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>`;
+
+        listEl.querySelectorAll('[data-student-id]').forEach((card) => {
+          card.addEventListener('click', () => {
+            const id = Number(card.dataset.studentId);
+            const student = currentStudents.find((s) => s.id === id);
+            if (student) openStudentGrades(student);
+          });
+        });
+
+      } catch (err) {
+        listEl.innerHTML = `<p class="error" style="text-align:center; padding:24px;">Ошибка: ${err.message}</p>`;
+      }
+    }
+
+    async function openStudentGrades(student) {
+      document.getElementById('students-screen').style.display = 'none';
+      document.getElementById('grades-screen').style.display = '';
+      document.getElementById('topbar-filters').style.display = '';
+      document.getElementById('back-bar-info').textContent =
+        fullName(student) || `ID ${student.id}`;
+      document.getElementById('topbar-sub').textContent = 'Оценки ученика';
+
+      const tbody = document.getElementById('grades-body-teacher');
+      tbody.innerHTML = '<tr><td colspan="5" class="muted">Загрузка…</td></tr>';
+
+      try {
+        // ⚠️ Твой эндпоинт: /grade/student?user_id=X
+        const response = await fetch(
+          `${API_BASE}/grade/student?user_id=${student.id}`,
+          { credentials: 'include' }
+        );
+
+        if (response.status === 401) { location.href = URLS.login; return; }
+        if (response.status === 403) {
+          tbody.innerHTML = `<tr><td colspan="5" class="error">Нет доступа</td></tr>`;
+          return;
+        }
+        if (!response.ok) throw new Error(`Ошибка ${response.status}`);
+
+        currentGrades = await response.json();
+
+        const subjects = [...new Set(currentGrades.map((g) => g.subject_name))].sort();
+        const select = document.getElementById('subject-select');
+        select.innerHTML = '<option value="">Все предметы</option>' +
+          subjects.map((s) => `<option value="${s}">${s}</option>`).join('');
+
+        // Убираем старый обработчик и ставим новый
+        const newSelect = select.cloneNode(true);
+        select.parentNode.replaceChild(newSelect, select);
+        newSelect.addEventListener('change', renderTeacher);
+
+        renderTeacher();
+
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="error">Ошибка: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderTeacher() {
+      const subject = document.getElementById('subject-select').value;
+      const filtered = subject
+        ? currentGrades.filter((g) => g.subject_name === subject)
+        : currentGrades;
+      renderGrades(filtered, 'grades-body-teacher', 'overall-avg-teacher', 'grades-counts-teacher');
+    }
+
+    function backToStudents() {
+      document.getElementById('grades-screen').style.display = 'none';
+      document.getElementById('students-screen').style.display = '';
+      document.getElementById('topbar-filters').style.display = 'none';
+      document.getElementById('topbar-sub').textContent =
+        `Группа · ${currentStudents.length} учеников`;
+      currentGrades = [];
+    }
+
+    async function initTeacher(me) {
+      document.getElementById('page-title').textContent = 'Оценки учеников';
+      document.getElementById('topbar-sub').textContent = 'Выберите группу';
+      document.getElementById('teacher-view').style.display = '';
+
+      const navStudents = document.getElementById('nav-students');
+      if (navStudents) navStudents.style.display = '';
+      const navSetGrade = document.getElementById('nav-set-grade');
+      if (navSetGrade) navSetGrade.style.display = '';
+
+      document.getElementById('load-students-btn').addEventListener('click', loadStudents);
+      document.getElementById('group-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); loadStudents(); }
+      });
+      document.getElementById('back-btn').addEventListener('click', backToStudents);
+
+      if (me.group) document.getElementById('group-input').value = me.group;
+    }
+
+    /* ============ Точка входа ============ */
+    async function init() {
+      let me;
+      try {
+        me = await getMe();
+      } catch { return; }
+
+      if (me.role === 'student') {
+        await initStudent();
+      } else if (me.role === 'teacher' || me.role === 'admin') {
+        await initTeacher(me);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

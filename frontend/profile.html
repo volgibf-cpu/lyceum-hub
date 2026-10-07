@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Профиль — Проф. лицей</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">🎓</span>
+        <span class="brand-title">Проф. лицей</span>
+      </div>
+      <nav class="nav">
+        <a class="nav-link" href="/app/index.html"><span>🏠</span> Главная</a>
+        <a class="nav-link" href="/app/schedule.html"><span>📅</span> Расписание</a>
+        <a class="nav-link" href="/app/grades.html"><span>📊</span> Оценки</a>
+        <a class="nav-link" href="/app/students.html" id="nav-students" style="display:none">
+          <span>👥</span> Ученики
+        </a>
+        <a class="nav-link" href="/app/set-grade.html" id="nav-set-grade" style="display:none">
+          <span>✏️</span> Выставить оценку
+        </a>
+        <a class="nav-link active" href="/app/profile.html"><span>👤</span> Профиль</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1>Профиль</h1>
+          <div class="topbar-sub">Личные данные и настройки</div>
+        </div>
+        <button class="btn btn-ghost" id="logout-btn">
+          <span>🚪</span> Выйти
+        </button>
+      </header>
+
+      <!-- Hero-карточка -->
+      <div class="profile-hero" id="profile-hero">
+        <div class="profile-avatar" id="avatar">?</div>
+        <div class="profile-hero-info">
+          <div class="profile-hero-name" id="hero-name">Загрузка…</div>
+          <div class="profile-hero-meta" id="hero-meta"></div>
+        </div>
+      </div>
+
+      <!-- Личные данные -->
+      <section class="card">
+        <div class="card-head">
+          <h2>
+            <span class="head-icon">📝</span>
+            Личные данные
+          </h2>
+        </div>
+
+        <div class="profile-grid">
+          <div class="profile-field">
+            <span class="profile-label">Имя</span>
+            <span class="profile-value" id="field-name">—</span>
+          </div>
+
+          <div class="profile-field">
+            <span class="profile-label">Фамилия</span>
+            <span class="profile-value" id="field-second-name">—</span>
+          </div>
+
+          <div class="profile-field">
+            <span class="profile-label">Отчество</span>
+            <span class="profile-value" id="field-patronymic">—</span>
+          </div>
+
+          <div class="profile-field">
+            <span class="profile-label">Email</span>
+            <span class="profile-value" id="field-email">—</span>
+          </div>
+
+          <div class="profile-field">
+            <span class="profile-label">Группа</span>
+            <span class="profile-value" id="field-group">—</span>
+          </div>
+
+          <div class="profile-field">
+            <span class="profile-label">Роль</span>
+            <span class="profile-value" id="field-role">—</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Сессия -->
+      <section class="card">
+        <div class="card-head">
+          <h2>
+            <span class="head-icon">🚪</span>
+            Сессия
+          </h2>
+        </div>
+        <p class="muted" style="margin: 0 0 16px;">
+          Выйти из аккаунта на этом устройстве.
+        </p>
+        <button class="btn btn-soft" id="logout-btn-2">Выйти из аккаунта</button>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { getMe, ApiError, URLS } from '/static/js/api.js';
+
+    /* ============ Роли на русском ============ */
+    const ROLE_LABELS = {
+      student: 'Ученик',
+      teacher: 'Преподаватель',
+      admin:   'Администратор',
+    };
+
+    /* ============ Инициалы ============ */
+    function getInitials(name, secondName) {
+      const a = (secondName || '').trim()[0] || '';
+      const b = (name || '').trim()[0] || '';
+      return (a + b).toUpperCase() || '?';
+    }
+
+    /* ============ Заполнить страницу ============ */
+    function fillProfile(me) {
+      const fullName = [me.second_name, me.name, me.patronymic]
+        .filter(Boolean)
+        .join(' ')
+        .trim() || me.email;
+
+      // Hero
+      document.getElementById('avatar').textContent =
+        getInitials(me.name, me.second_name);
+      document.getElementById('hero-name').textContent = fullName;
+
+      const meta = [];
+      if (me.group) meta.push(`🎓 Группа ${me.group}`);
+      else if (me.role === 'student') meta.push('🎓 Группа не назначена');
+      if (me.role) meta.push(`👤 ${ROLE_LABELS[me.role] || me.role}`);
+
+      document.getElementById('hero-meta').innerHTML = meta
+        .map((t) => `<span>${t}</span>`)
+        .join('');
+
+      // Поля
+      document.getElementById('field-name').textContent       = me.name || '—';
+      document.getElementById('field-second-name').textContent = me.second_name || '—';
+      document.getElementById('field-patronymic').textContent  = me.patronymic || '—';
+      document.getElementById('field-email').textContent       = me.email || '—';
+      document.getElementById('field-group').textContent       = me.group || 'Нет группы';
+      document.getElementById('field-role').textContent        = ROLE_LABELS[me.role] || me.role || '—';
+
+      document.title = `${fullName} — Проф. лицей`;
+    }
+
+    /* ============ Загрузка ============ */
+    async function loadProfile() {
+      try {
+        const me = await getMe();
+        fillProfile(me);
+      } catch (err) {
+        const msg = err instanceof ApiError ? err.message : String(err);
+        document.getElementById('hero-name').textContent = 'Ошибка загрузки';
+        document.getElementById('hero-meta').innerHTML =
+          `<span class="error">${msg}</span>`;
+      }
+    }
+
+    /* ============ Выход ============ */
+    function handleLogout() {
+      // Очищаем localStorage на всякий случай
+      localStorage.removeItem('api_base');
+      // Редирект на логин
+      location.href = URLS.login;
+    }
+
+    /* ============ Инициализация ============ */
+    function init() {
+      document.getElementById('logout-btn').addEventListener('click', handleLogout);
+      document.getElementById('logout-btn-2').addEventListener('click', handleLogout);
+      loadProfile();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

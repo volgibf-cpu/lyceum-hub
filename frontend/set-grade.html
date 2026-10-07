@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Выставить оценку — Проф. лицей</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">🎓</span>
+        <span class="brand-title">Проф. лицей</span>
+      </div>
+      <nav class="nav">
+        <a class="nav-link" href="/app/index.html"><span>🏠</span> Главная</a>
+        <a class="nav-link" href="/app/schedule.html"><span>📅</span> Расписание</a>
+        <a class="nav-link" href="/app/grades.html"><span>📊</span> Оценки</a>
+        <a class="nav-link" href="/app/students.html" id="nav-students" style="display:none">
+          <span>👥</span> Ученики
+        </a>
+        <a class="nav-link active" href="/app/set-grade.html" id="nav-set-grade" style="display:none">
+          <span>✏️</span> Выставить оценку
+        </a>
+        <a class="nav-link" href="/app/profile.html"><span>👤</span> Профиль</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1>Выставить оценку</h1>
+          <div class="topbar-sub">Оценка или отметка о пропуске</div>
+        </div>
+      </header>
+
+      <section class="card" style="max-width: 720px; margin: 0 auto;">
+        <form id="grade-form" class="form" novalidate>
+
+          <!-- Шаг 1: выбор группы + кнопка -->
+          <div class="students-filter">
+            <label class="field" style="flex: 1; margin: 0;">
+              <span>Группа</span>
+              <input type="text" id="group-input" placeholder="например, ИС-21" required />
+            </label>
+            <button type="button" class="btn btn-primary" id="load-students-btn">
+              🔍 Загрузить
+            </button>
+          </div>
+
+          <!-- Шаг 2: выбор ученика -->
+          <label class="field">
+            <span>Ученик</span>
+            <select id="student-select" required disabled>
+              <option value="">— сначала загрузите группу —</option>
+            </select>
+          </label>
+
+          <!-- Шаг 3: предмет, дата -->
+          <div class="form-row">
+            <label class="field">
+              <span>Предмет</span>
+              <input type="text" id="subject-input" placeholder="Математика" required />
+            </label>
+            <label class="field">
+              <span>Дата</span>
+              <input type="date" id="date-input" required />
+            </label>
+          </div>
+
+          <!-- Шаг 4: тип записи -->
+          <div class="field">
+            <span>Тип записи</span>
+            <div class="radio-group">
+              <label class="radio-card">
+                <input type="radio" name="kind" value="grade" checked />
+                <span class="radio-content">
+                  <span class="radio-icon">⭐</span>
+                  <span class="radio-title">Оценка</span>
+                </span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="kind" value="absence" />
+                <span class="radio-content">
+                  <span class="radio-icon">🚫</span>
+                  <span class="radio-title">Пропуск</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Шаг 5а: оценка (видно, если kind=grade) -->
+          <div class="field" id="value-block">
+            <span>Оценка</span>
+            <div class="grade-selector">
+              <label class="grade-option grade-5">
+                <input type="radio" name="value" value="5" checked />
+                <span>5</span>
+              </label>
+              <label class="grade-option grade-4">
+                <input type="radio" name="value" value="4" />
+                <span>4</span>
+              </label>
+              <label class="grade-option grade-3">
+                <input type="radio" name="value" value="3" />
+                <span>3</span>
+              </label>
+              <label class="grade-option grade-2">
+                <input type="radio" name="value" value="2" />
+                <span>2</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Шаг 5б: статус (видно, если kind=absence) -->
+          <div class="field" id="status-block" style="display:none;">
+            <span>Причина отсутствия</span>
+            <div class="grade-selector">
+              <label class="grade-option grade-other">
+                <input type="radio" name="status" value="Н" checked />
+                <span>Н<br><small>Не был</small></span>
+              </label>
+              <label class="grade-option grade-3">
+                <input type="radio" name="status" value="Б" />
+                <span>Б<br><small>Болел</small></span>
+              </label>
+              <label class="grade-option grade-4">
+                <input type="radio" name="status" value="У" />
+                <span>У<br><small>Уваж.</small></span>
+              </label>
+              <label class="grade-option grade-2">
+                <input type="radio" name="status" value="О" />
+                <span>О<br><small>Опоздал</small></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Комментарий -->
+          <label class="field">
+            <span>Комментарий (необязательно)</span>
+            <input type="text" id="comment-input" placeholder="например, отличная работа" />
+          </label>
+
+          <div class="form-error" id="form-error"></div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg" id="submit-btn">
+            💾 Сохранить
+          </button>
+
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { getMe } from '/static/js/api.js';
+
+    const API_BASE = localStorage.getItem('api_base') || 'http://127.0.0.1:8000';
+
+    /* ============ Сегодняшняя дата по умолчанию ============ */
+    document.getElementById('date-input').valueAsDate = new Date();
+
+    /* ============ Проверка роли ============ */
+    (async () => {
+      try {
+        const me = await getMe();
+        if (me.role !== 'teacher' && me.role !== 'admin') {
+          location.href = '/app/schedule.html';
+          return;
+        }
+        const navSet = document.getElementById('nav-set-grade');
+        if (navSet) navSet.style.display = '';
+        const navStudents = document.getElementById('nav-students');
+        if (navStudents) navStudents.style.display = '';
+        if (me.group) document.getElementById('group-input').value = me.group;
+      } catch {}
+    })();
+
+    /* ============ Toast ============ */
+    let toastTimer = null;
+    function showToast(text, type = 'ok') {
+      const toast = document.getElementById('toast');
+      toast.textContent = text;
+      toast.className = `toast show ${type}`;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    /* ============ Переключение Оценка/Пропуск ============ */
+    const valueBlock = document.getElementById('value-block');
+    const statusBlock = document.getElementById('status-block');
+
+    document.querySelectorAll('input[name="kind"]').forEach((r) => {
+      r.addEventListener('change', (e) => {
+        if (e.target.value === 'grade') {
+          valueBlock.style.display = '';
+          statusBlock.style.display = 'none';
+        } else {
+          valueBlock.style.display = 'none';
+          statusBlock.style.display = '';
+        }
+      });
+    });
+
+    /* ============ Загрузка учеников ============ */
+    async function loadStudents() {
+      const groupName = document.getElementById('group-input').value.trim();
+      const select = document.getElementById('student-select');
+
+      if (!groupName) {
+        showToast('Введите группу', 'error');
+        return;
+      }
+
+      select.disabled = true;
+      select.innerHTML = '<option value="">Загрузка…</option>';
+
+      try {
+        const response = await fetch(
+          `${API_BASE}/users/student?group_name=${encodeURIComponent(groupName)}`,
+          { credentials: 'include' }
+        );
+
+        if (response.status === 401) { location.href = '/app/login.html'; return; }
+        if (response.status === 403) {
+          showToast('Нет доступа к этой группе', 'error');
+          select.innerHTML = '<option value="">Нет доступа</option>';
+          return;
+        }
+        if (response.status === 404) {
+          showToast('Группа не найдена', 'error');
+          select.innerHTML = '<option value="">Группа не найдена</option>';
+          return;
+        }
+        if (!response.ok) throw new Error(`Ошибка ${response.status}`);
+
+        const students = await response.json();
+
+        if (!students.length) {
+          select.innerHTML = '<option value="">В группе нет учеников</option>';
+          return;
+        }
+
+        select.innerHTML = '<option value="">— выберите ученика —</option>' +
+          students.map((s) => {
+            const fio = [
+              s.second_name || s.last_name || '',
+              s.name || s.first_name || '',
+              s.patronymic || s.middle_name || '',
+            ].filter(Boolean).join(' ').trim();
+            return `<option value="${s.id}">${fio || ('ID ' + s.id)}</option>`;
+          }).join('');
+
+        select.disabled = false;
+        showToast(`Загружено ${students.length} учеников`, 'ok');
+
+      } catch (err) {
+        showToast('Ошибка: ' + err.message, 'error');
+        select.innerHTML = '<option value="">Ошибка загрузки</option>';
+      }
+    }
+
+    document.getElementById('load-students-btn').addEventListener('click', loadStudents);
+    document.getElementById('group-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); loadStudents(); }
+    });
+
+    /* ============ Отправка формы ============ */
+    document.getElementById('grade-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const errorEl = document.getElementById('form-error');
+      errorEl.textContent = '';
+
+      const studentId = document.getElementById('student-select').value;
+      const subject = document.getElementById('subject-input').value.trim();
+      const date = document.getElementById('date-input').value;
+      const kind = document.querySelector('input[name="kind"]:checked').value;
+      const comment = document.getElementById('comment-input').value.trim();
+
+      if (!studentId) { errorEl.textContent = 'Выберите ученика'; return; }
+      if (!subject)   { errorEl.textContent = 'Укажите предмет'; return; }
+      if (!date)      { errorEl.textContent = 'Укажите дату'; return; }
+
+      const payload = {
+        student_id: Number(studentId),
+        subject_name: subject,
+        kind,
+        date,
+        comment,
+      };
+
+      if (kind === 'grade') {
+        payload.value = Number(document.querySelector('input[name="value"]:checked').value);
+      } else {
+        payload.status = document.querySelector('input[name="status"]:checked').value;
+      }
+
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Сохраняем…';
+
+      try {
+        // ⚠️ URL — под твой prefix="/grade"
+        const response = await fetch(`${API_BASE}/grade/set`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.status === 401) { location.href = '/app/login.html'; return; }
+        if (response.status === 403) { errorEl.textContent = 'Нет доступа'; return; }
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.detail || `Ошибка ${response.status}`);
+        }
+
+        const studentText = document.getElementById('student-select').selectedOptions[0].textContent;
+        showToast(`✅ Сохранено: ${studentText}`, 'ok');
+
+        // Сброс: ученик и комментарий
+        document.getElementById('student-select').value = '';
+        document.getElementById('comment-input').value = '';
+
+      } catch (err) {
+        errorEl.textContent = err.message || 'Не удалось сохранить';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Сохранить';
+      }
+    });
+  </script>
+</body>
+</html>
