@@ -1,6 +1,7 @@
 from src.models.models import User, Group, Grade, Pair
 from sqladmin import Admin, ModelView
 from src.core.database import engine
+from src.core.security import hash_password
 
 # ============ User ============
 class UserAdmin(ModelView, model=User):
@@ -30,6 +31,12 @@ class UserAdmin(ModelView, model=User):
         User.role,
         User.group,
     ]
+
+    async def on_model_change(self, data, model, is_created, request):
+        new_password = data.get("password")
+
+        if new_password and not new_password.startswith("$2b$"):
+            data["password"] = hash_password(new_password)
 
 
 # ============ Group ============
