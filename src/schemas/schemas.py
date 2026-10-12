@@ -1,15 +1,6 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 from datetime import date
 
-class UserRequest(BaseModel):
-    email: EmailStr
-    password: str
-    first_name: str
-    last_name: str
-    middle_name: str
-    birth_date: date
-    role: str
-
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
@@ -24,7 +15,6 @@ class UserResponse(BaseModel):
     middle_name: str
     birth_date: date
     role: str
-
 
 class PairResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)

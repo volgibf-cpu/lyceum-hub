@@ -1,8 +1,8 @@
 from src.core.database import get_db
 from src.models.models import User
-from fastapi import APIRouter, Depends, Request, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
-from src.schemas.schemas import UserRequest, LoginRequest
+from src.schemas.schemas import LoginRequest
 from src.core.security import security, config, verify_password
 
 router = APIRouter(prefix="/auth")

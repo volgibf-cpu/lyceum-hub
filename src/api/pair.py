@@ -1,9 +1,8 @@
 from src.core.database import get_db
 from src.models.models import User, Pair
-from fastapi import APIRouter, Depends, Request, HTTPException, Response
+from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlalchemy.orm import Session
-from src.schemas.schemas import PairResponse
-from src.core.security import security, config, get_token_from_cookies
+from src.core.security import security, get_token_from_cookies
 
 router = APIRouter(prefix="/pair")
 
