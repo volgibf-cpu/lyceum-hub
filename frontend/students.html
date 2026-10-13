@@ -59,12 +59,7 @@
   <script type="module">
     import { getMe, URLS } from '/static/js/api.js';
 
-    const API_BASE = (
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1'
-    )
-        ? 'http://127.0.0.1:8000'
-        : 'https://lyceum-hub-1-nsk6.onrender.com';
+    const API_BASE = '';
 
     /* ============ 1. Проверка роли ============ */
     async function checkRole() {
