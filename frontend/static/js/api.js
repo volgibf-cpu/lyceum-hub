@@ -5,7 +5,7 @@ const API_BASE = (
     window.location.hostname === '127.0.0.1'
 )
     ? 'http://127.0.0.1:8000'
-    : 'https://lyceum-hub-1.onrender.com';
+    : 'https://lyceum-hub-1-nsk6.onrender.com';
 const LOGIN_URL = '/app/login.html';
 const AFTER_LOGIN_URL = '/app/schedule.html';
 
