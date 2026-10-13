@@ -137,7 +137,12 @@
   <script type="module">
     import { getMe, getMyGrades, URLS } from '/static/js/api.js';
 
-    const API_BASE = localStorage.getItem('api_base') || 'http://127.0.0.1:8000';
+    const API_BASE = (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1'
+    )
+        ? 'http://127.0.0.1:8000'
+        : 'https://lyceum-hub-1.onrender.com';
 
     /* ============ Утилиты ============ */
     function formatDate(iso) {

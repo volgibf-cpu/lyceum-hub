@@ -1,6 +1,11 @@
 // frontend/static/js/api.js
 
-const API_BASE = localStorage.getItem('api_base') || 'http://127.0.0.1:8000';
+const API_BASE = (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+)
+    ? 'http://127.0.0.1:8000'
+    : 'https://lyceum-hub-1.onrender.com';
 const LOGIN_URL = '/app/login.html';
 const AFTER_LOGIN_URL = '/app/schedule.html';
 
