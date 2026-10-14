@@ -27,7 +27,7 @@ def test_grade_request():
                          subject_name="Математика",
                          kind="absence",
                          status="Н",
-                         date="2026-10-13",)
+                         date="2026-10-13")
 
     assert grade.value is None
     assert grade.comment is None
@@ -35,5 +35,18 @@ def test_grade_request():
     assert grade.date.month == 10
     assert grade.date.day == 13
 
+def test_login_invalid_email():
+    with pytest.raises(ValidationError):
+        user_login = LoginRequest(email="sumit1213FER", 
+                                  password="fer421")
 
+def test_user_invalid_birth_date():
+    with pytest.raises(ValidationError):
+        user = UserResponse(id=1,
+                            email="user@gmail.com",
+                            first_name="Alex",
+                            last_name="Sebastian",
+                            middle_name="Feliach",
+                            birth_date="2010.12.03",
+                            role="student")
 
