@@ -3,6 +3,7 @@
 ![Python](https://img.shields.io/badge/Python-3.14-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-red)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
 
 Веб-приложение для управления учебным процессом профессионального лицея: расписание, оценки, посещаемость и профили пользователей.
@@ -129,8 +130,14 @@ python -c "import secrets; print(secrets.token_hex(32))"
 ```bash
 python seed.py
 ```
+### 6. Запустить тесты
 
-### 6. Запустить приложение
+```bash
+pip install pytest pytest-cov
+pytest --cov=src
+```
+
+### 7. Запустить приложение
 
 ```bash
 uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
@@ -218,6 +225,14 @@ lyceum-hub/
 │   └── static/
 │       ├── css/
 │       └── js/
+├── tests/
+│   ├── __init__.py
+│   ├── conftest.py       
+│   ├── test_auth.py
+│   ├── test_grade.py
+│   ├── test_pair.py
+│   ├── test_schemas.py
+│   └── test_user.py
 ├── docs/
 │   └── screenshots/
 ├── seed.py
