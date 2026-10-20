@@ -48,23 +48,29 @@ def test_users(db_session):
     yield {"teacher": teacher,
            "student": student,
            "group": group}
-
-    db_session.delete(teacher)
+    
     db_session.delete(student)
     db_session.delete(group)
+    db_session.delete(teacher)
     db_session.commit()
 
 @pytest.fixture
-def test_group(db_session, test_users):
-    group = Group(name="TestGroup", year=1, curator_id=test_users["teacher"].id)
+def auth_student(client, test_users):
+    client.post("/auth", json={
+        "email": "test@gmail.com",
+        "password": "12345"
+    })
 
-    db_session.add(group)
-    db_session.commit()
+    yield client
 
-    yield group
+@pytest.fixture
+def auth_teacher(client, test_users):
+    client.post("/auth", json={
+        "email": "teacher_test@gmail.com",
+        "password": "12345"
+    })
 
-    db_session.delete(group)
-    db_session.commit()
+    yield client
         
 @pytest.fixture
 def grade_test(db_session, test_users):
@@ -79,8 +85,8 @@ def grade_test(db_session, test_users):
     db_session.commit()
 
 @pytest.fixture
-def test_pair(db_session, test_users, test_group):
-    pair = Pair(teacher_id=test_users["teacher"].id, group_id=test_group.id, subject_name="Математика", number=3, day="Понедельник", start="11:20", end="12:50")
+def test_pair(db_session, test_users):
+    pair = Pair(teacher_id=test_users["teacher"].id, group_id=test_users["group"].id, subject_name="Математика", number=3, day="Понедельник", start="11:20", end="12:50")
 
     db_session.add(pair)
     db_session.commit()
